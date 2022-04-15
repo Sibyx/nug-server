@@ -3,7 +3,11 @@ from setuptools import setup
 setup(
     name='nug-server',
     version='0.1.0',
-    packages=['nug_server'],
+    packages=[
+        'nug_server',
+        'nug_server.services',
+        'nug_server.network'
+    ],
     url='https://github.com/Sibyx/nug-server',
     license='GPLv3',
     author='Jakub Dubec',
@@ -15,8 +19,9 @@ setup(
         ]
     },
     install_requires=[
-        'python-dotenv==0.19.*',
         'zeroconf==0.38.*',
-        'opencv-python==4.*'
+        'numpy',
+        'opencv-python==4.*',
+        'tomli >= 1.1.0 ; python_version < "3.11"'
     ],
 )

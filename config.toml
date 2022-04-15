@@ -1,0 +1,18 @@
+[general]
+bind = "0.0.0.0:9001"
+database = "/home/alarm/nug.db"
+log_level = "INFO"
+
+[syslog]
+ip = "127.0.0.1"
+port = 1514
+
+[[dongles]]
+ip = "10.0.0.1"
+port = 5001
+services = [ "mouse", "keyboard" ]
+
+[[dongles]]
+ip = "10.0.0.2"
+port = 5002
+services = [ "video" ]

@@ -1,22 +1,29 @@
 import argparse
 import logging
-from ipaddress import ip_address
+from logging.handlers import SysLogHandler
+from pathlib import Path
 
-from nug_server.network.network_address import NetworkAddress
+import tomli as tomli
+
 from nug_server.services.video import VideoService
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--verbose', action='store_true')
-    parser.add_argument('--log-level', type=str, choices=logging._nameToLevel.keys(), default='INFO')
-    parser.add_argument(
-        '--bind', '-b', type=ip_address, default=[ip_address('127.0.0.1'), ip_address('::1')], nargs='+'
-    )
-    parser.add_argument('--port', '-p', type=int, default=5900)
-    parser.add_argument('--video', type=NetworkAddress, default=None)
+    parser.add_argument('--config', '-c', type=Path)
     args = parser.parse_args()
 
-    logging.getLogger().setLevel(args.log_level)
+    # Read config file
+    with open(args.config, "rb") as f:
+        config = tomli.load(f)
+
+    # Set loglevel
+    logging.getLogger().setLevel(config['general'].get('log_level', 'INFO'))
+
+    if 'syslog' in config:
+        handler = SysLogHandler(address=(config['syslog']['ip'], config['syslog']['port']))
+        logging.getLogger().addHandler(handler)
+
     if args.verbose:
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(logging.Formatter(
@@ -27,6 +34,6 @@ if __name__ == '__main__':
 
     services = []
 
-    if args.video:
-        video_service = VideoService(args.video)
-        video_service.start()
+    # if args.video:
+    #     video_service = VideoService(args.video)
+    #     video_service.start()
