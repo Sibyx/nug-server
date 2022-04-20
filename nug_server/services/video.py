@@ -1,6 +1,4 @@
-import cv2
-
-from nug_server.network.network_address import NetworkAddress
+from nug_server.core.network import NetworkAddress
 from nug_server.services.base import Service
 
 '''

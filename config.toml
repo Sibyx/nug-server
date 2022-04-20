@@ -1,7 +1,7 @@
 [general]
 bind = "0.0.0.0:9001"
 database = "/home/alarm/nug.db"
-log_level = "INFO"
+log_level = "DEBUG"
 
 [syslog]
 ip = "127.0.0.1"
