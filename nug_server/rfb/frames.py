@@ -1,7 +1,7 @@
 from enum import Enum
 
 from nug_server.core.frames.base import Frame
-from nug_server.core.frames.fields import EnumField
+from nug_server.core.frames.fields import EnumField, StructField, ArrayField
 
 
 class ProtocolVersion(Frame):
@@ -14,4 +14,13 @@ class ProtocolVersion(Frame):
 
 
 class SecurityTypes(Frame):
-    pass
+    size = StructField('B')
+    types = ArrayField(StructField('B'))
+
+
+class SecurityType(Frame):
+    method = StructField('B')
+
+
+class SecurityResult(Frame):
+    result = StructField('L')
