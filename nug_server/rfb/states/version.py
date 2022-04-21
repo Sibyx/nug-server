@@ -1,15 +1,6 @@
-from abc import ABC, abstractmethod
-
 from nug_server.rfb.frames import ProtocolVersion
-
-
-class BaseState(ABC):
-    def __init__(self, context):
-        self._context = context
-
-    @abstractmethod
-    def handle(self, data: bytes):
-        pass
+from nug_server.rfb.states.base import BaseState
+from nug_server.rfb.states.security_type import SecurityTypeState
 
 
 class VersionState(BaseState):
@@ -22,15 +13,7 @@ class VersionState(BaseState):
         # Send security types
 
         # Change state
-        self._context.state = SecurityTypeState(self._context)
+        return SecurityTypeState(self._context)
 
     def __str__(self):
         return "VERSION"
-
-
-class SecurityTypeState(BaseState):
-    def handle(self, data: bytes):
-        pass
-
-    def __str__(self):
-        return "SECURITY_TYPE"

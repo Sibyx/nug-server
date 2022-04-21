@@ -6,9 +6,7 @@ from pathlib import Path
 
 import tomli as tomli
 
-from nug_server.core.network import NetworkAddress
 from nug_server.core.protocol import RFBProtocol
-from nug_server.services.video import VideoService
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -42,7 +40,5 @@ if __name__ == '__main__':
     #     video_service.start()
 
     asyncio.run(
-        RFBProtocol.factory(
-            bind=NetworkAddress(config['general']['bind'])
-        )
+        RFBProtocol.factory(config)
     )

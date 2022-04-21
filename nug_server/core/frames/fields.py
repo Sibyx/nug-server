@@ -66,3 +66,18 @@ class PaddingField(StructField):
 
     def from_bytes(self, data: bytes):
         pass
+
+
+class ArrayField(Field):
+    def __init__(self, field_type: Type[Field], value=None):
+        super().__init__(value)
+        self._field_type = field_type
+
+    def to_bytes(self) -> bytes:
+        result = bytearray()
+        for i in self.value:
+            result += i.to_bytes()
+        return result
+
+    def from_bytes(self, data: bytes):
+        pass
