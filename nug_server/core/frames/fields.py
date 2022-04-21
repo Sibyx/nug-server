@@ -1,15 +1,13 @@
 from abc import abstractmethod
 
-
-# https://docs.python.org/3/library/struct.html
-from struct import pack
+from enum import Enum
+from struct import pack, unpack
+from typing import Type
 
 
 class Field:
-    def __init__(self, fmt: str, value=None, read_only=False):
+    def __init__(self, value=None):
         self._value = value
-        self._read_only = read_only
-        self._fmt = fmt
 
     @property
     def value(self):
@@ -17,8 +15,6 @@ class Field:
 
     @value.setter
     def value(self, value):
-        if self._read_only:
-            raise Exception("Read-only field!")
         self._value = value
 
     @abstractmethod
@@ -30,24 +26,43 @@ class Field:
         pass
 
 
-class String(Field):
-    def __init__(self, value=None, read_only=False):
-        super().__init__("s", value, read_only)
-
+class StringField(Field):
     def from_bytes(self, data: bytes):
         self.value = data.decode()
 
     def to_bytes(self) -> bytes:
-        return self._value.encode()
+        return self.value.encode()
 
 
-class Padding(Field):
+class EnumField(StringField):
+    def __init__(self, enum_type: Type[Enum], value=None):
+        self._enum = enum_type
+        super().__init__(value)
+
+    def to_bytes(self) -> bytes:
+        return self.value.value.encode()
+
+    def from_bytes(self, data: bytes):
+        self.value = self._enum(data.decode())
+
+
+class StructField(Field):
+    def __init__(self, fmt: str, value=None):
+        self._fmt = fmt
+        super().__init__(value)
+
+    def to_bytes(self) -> bytes:
+        return pack(self._fmt, self.value)
+
+    def from_bytes(self, data: bytes):
+        self._value = unpack(self._fmt, data)
+
+
+class PaddingField(StructField):
     def __init__(self, size: int):
         self._size = size
-        super().__init__(f"{self._size}s", read_only=True)
+        super().__init__(f"{self._size}s")
+        self._value = bytearray([0] * self._size)
 
     def from_bytes(self, data: bytes):
         pass
-
-    def to_bytes(self) -> bytes:
-        return pack(self._fmt, bytearray([0] * self._size))

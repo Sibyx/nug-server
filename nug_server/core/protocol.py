@@ -54,7 +54,7 @@ class RFBProtocol(Protocol):
         self._transport = transport
         logging.debug("Making connection with %s:%d (session=%s)", *transport.get_extra_info('peername'), self._id)
         version_frame = ProtocolVersion(
-            version=ProtocolVersion.RFBVersion.RFB_003_008.value
+            version=ProtocolVersion.RFBVersion.RFB_003_008
         )
         version_frame.write(self._transport)
 
