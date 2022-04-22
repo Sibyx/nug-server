@@ -1,6 +1,6 @@
 import logging
 from asyncio import Transport
-from typing import Optional, Dict
+from typing import Optional, Dict, Union
 from uuid import uuid4, UUID
 
 from nug_server.rfb.frames import ProtocolVersion
@@ -13,7 +13,7 @@ class Context:
         self._transport = None
         self._version = ProtocolVersion.RFBVersion.RFB_003_003
         self._security_types = {
-            1: None,
+            1: 'nug_server.rfb.security.none_security_type.NoneSecurityType',
             # 2: 'nug_server.rfb.security.vnc.VNCSecurityType',
             # 16: 'nug_server.rfb.security.tight.TightSecurityType'
         }
@@ -50,5 +50,5 @@ class Context:
         self._version = ProtocolVersion.RFBVersion(value)
 
     @property
-    def security_types(self) -> Dict[int, str]:
+    def security_types(self) -> Dict[int, Union[str, None]]:
         return self._security_types

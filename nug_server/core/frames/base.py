@@ -1,5 +1,5 @@
 import copy
-from asyncio import WriteTransport, ReadTransport
+import io
 
 from nug_server.core.frames.fields import Field
 
@@ -37,7 +37,7 @@ class DeclarativeFieldsMetaclass(type):
 
 class BaseFrame:
     def __init__(self, **kwargs):
-        self.fields = copy.deepcopy(getattr(self, 'base_fields'))
+        self.fields = copy.copy(getattr(self, 'base_fields'))
 
         for key, value in kwargs.items():
             if key in self.fields and isinstance(self.fields[key], Field):
@@ -67,12 +67,15 @@ class BaseFrame:
         for key, field in self.fields.items():
             self.fields[key].from_bytes(data)
 
-    def write(self, stream: WriteTransport):
-        buffer = bytes()
-        for key, field in self.fields.items():
-            buffer += field.to_bytes()
+    def get_value(self):
+        # TODO: use streams some day
+        buffer = io.BytesIO()
 
-        stream.write(buffer)
+        for key, field in self.fields.items():
+            if isinstance(field, Field):
+                buffer.write(field.to_bytes())
+
+        return buffer.getvalue()
 
 
 class Frame(BaseFrame, metaclass=DeclarativeFieldsMetaclass):

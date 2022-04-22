@@ -1,5 +1,5 @@
 [general]
-bind = "0.0.0.0:9001"
+bind = "0.0.0.0:5901"
 database = "/home/alarm/nug.db"
 log_level = "DEBUG"
 

@@ -47,15 +47,17 @@ class EnumField(StringField):
 
 
 class StructField(Field):
-    def __init__(self, fmt: str, value=None):
-        self._fmt = fmt
+    def __init__(self, fmt: str, value=None, scalar: bool = True):
+        self._fmt = f"!{fmt}"
+        self._scalar = scalar
         super().__init__(value)
 
     def to_bytes(self) -> bytes:
         return pack(self._fmt, self.value)
 
     def from_bytes(self, data: bytes):
-        self._value = unpack(self._fmt, data)
+        payload = unpack(self._fmt, data)
+        self._value = payload[0] if self._scalar else payload
 
 
 class PaddingField(StructField):
@@ -82,3 +84,44 @@ class ArrayField(Field):
 
     def from_bytes(self, data: bytes):
         pass
+
+
+class FrameField(Field):
+    def __init__(self, value=None):
+        super().__init__(value)
+
+    def to_bytes(self) -> bytes:
+        return self.value.get_value()
+
+    def from_bytes(self, data: bytes):
+        pass
+
+
+class U8(StructField):
+    def __init__(self, value=None):
+        super().__init__("B", value, True)
+
+
+class S8(StructField):
+    def __init__(self, value=None):
+        super().__init__("b", value, True)
+
+
+class U16(StructField):
+    def __init__(self, value=None):
+        super().__init__("H", value, True)
+
+
+class S16(StructField):
+    def __init__(self, value=None):
+        super().__init__("h", value, True)
+
+
+class U32(StructField):
+    def __init__(self, value=None):
+        super().__init__("I", value, True)
+
+
+class S32(StructField):
+    def __init__(self, value=None):
+        super().__init__("i", value, True)
