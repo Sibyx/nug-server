@@ -46,7 +46,7 @@ class Server(Protocol):
         logging.debug("Connection lost (context=%s)", self._context)
 
     @classmethod
-    async def factory(cls, config: dict):
+    async def factory(cls, config: dict, services=None):
         loop = asyncio.get_running_loop()
         server = await loop.create_server(
             lambda: Server(config),

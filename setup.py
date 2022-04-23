@@ -21,7 +21,6 @@ setup(
     install_requires=[
         'zeroconf==0.38.*',
         'numpy',
-        'opencv-python==4.*',
         'tomli >= 1.1.0 ; python_version < "3.11"'
     ],
 )

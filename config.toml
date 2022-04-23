@@ -6,7 +6,8 @@ bind = [
 ]
 database = "/home/alarm/nug.db"
 log_level = "DEBUG"
-name = "VNC Nug Server"
+name = "vnc-nug-server"
+zeroconf = true
 
 [syslog]
 ip = "127.0.0.1"
