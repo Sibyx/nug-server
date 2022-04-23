@@ -3,13 +3,12 @@ import logging
 from asyncio import Protocol, Transport
 
 from nug_server.core.context import Context
-from nug_server.core.network import NetworkAddress
 from nug_server.rfb.frames import ProtocolVersion
 from nug_server.core.states import BaseState
 from nug_server.rfb.states.version import VersionState
 
 
-class RFBProtocol(Protocol):
+class Server(Protocol):
     def __init__(self, config: dict):
         # https://docs.python.org/3/library/asyncio-protocol.html#tcp-echo-server
         # TCP client: nc localhost <port>
@@ -49,12 +48,12 @@ class RFBProtocol(Protocol):
     @classmethod
     async def factory(cls, config: dict):
         loop = asyncio.get_running_loop()
-        bind = NetworkAddress(config['general']['bind'])
-
         server = await loop.create_server(
-            lambda: RFBProtocol(config),
-            str(bind.ip_address), bind.port
+            lambda: Server(config),
+            host=config['general']['bind'],
+            port=config['general']['port']
         )
+        logging.info("Biding to %s on TCP port %d", ', '.join(config['general']['bind']), config['general']['port'])
 
         async with server:
             await server.serve_forever()

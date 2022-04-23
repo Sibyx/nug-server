@@ -1,7 +1,12 @@
 [general]
-bind = "0.0.0.0:5901"
+port = 5901
+bind = [
+    "0.0.0.0",
+    "::"
+]
 database = "/home/alarm/nug.db"
 log_level = "DEBUG"
+name = "VNC Nug Server"
 
 [syslog]
 ip = "127.0.0.1"

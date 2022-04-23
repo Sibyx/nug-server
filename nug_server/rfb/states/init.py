@@ -1,5 +1,3 @@
-import logging
-
 from nug_server.rfb.frames import ClientInit, ServerInit, PixelFormat
 from nug_server.rfb.states.active import ActiveState
 from nug_server.core.states import BaseState
@@ -10,7 +8,7 @@ class InitState(BaseState):
         client_init = ClientInit()
         client_init.read(data)
 
-        name = "Nug VNC Server"
+        server_name = self.context.config['general'].get('name', 'Super Nug VNC Server')
 
         server_init = ServerInit(
             width=1024,
@@ -27,8 +25,8 @@ class InitState(BaseState):
                 green_shift=8,
                 blue_shift=0
             ),
-            name_length=len(name),
-            name=name
+            name_length=len(server_name),
+            name=server_name
         )
 
         self.context.transport.write(server_init.get_value())
@@ -36,4 +34,4 @@ class InitState(BaseState):
         return ActiveState(self.context)
 
     def __str__(self):
-        return "init"
+        return "INIT"

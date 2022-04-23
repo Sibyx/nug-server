@@ -6,7 +6,8 @@ from pathlib import Path
 
 import tomli as tomli
 
-from nug_server.core.protocol import RFBProtocol
+from nug_server import version
+from nug_server.core.server import Server
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -33,6 +34,8 @@ if __name__ == '__main__':
         ))
         logging.getLogger().addHandler(stream_handler)
 
+    logging.info("Starting Nug RFB server %s", version.__version__)
+
     services = []
 
     # if args.video:
@@ -40,5 +43,5 @@ if __name__ == '__main__':
     #     video_service.start()
 
     asyncio.run(
-        RFBProtocol.factory(config)
+        Server.factory(config)
     )
