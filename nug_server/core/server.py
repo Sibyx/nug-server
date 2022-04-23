@@ -3,17 +3,15 @@ import logging
 from asyncio import Protocol, Transport
 
 from nug_server.core.context import Context
+from nug_server.core.service import DeviceContainer
 from nug_server.rfb.frames import ProtocolVersion
 from nug_server.core.states import BaseState
 from nug_server.rfb.states.version import VersionState
 
 
 class Server(Protocol):
-    def __init__(self, config: dict):
-        # https://docs.python.org/3/library/asyncio-protocol.html#tcp-echo-server
-        # TCP client: nc localhost <port>
-        # TODO: prepare services
-        self._context = Context(config)
+    def __init__(self, config: dict, services: DeviceContainer):
+        self._context = Context(config, services)
         self._state = VersionState(self._context)
 
     @property
@@ -46,10 +44,10 @@ class Server(Protocol):
         logging.debug("Connection lost (context=%s)", self._context)
 
     @classmethod
-    async def factory(cls, config: dict, services=None):
+    async def factory(cls, config: dict, services: DeviceContainer):
         loop = asyncio.get_running_loop()
         server = await loop.create_server(
-            lambda: Server(config),
+            lambda: Server(config, services),
             host=config['general']['bind'],
             port=config['general']['port']
         )

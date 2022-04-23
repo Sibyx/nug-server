@@ -3,14 +3,16 @@ from asyncio import Transport
 from typing import Optional, Dict, Union
 from uuid import uuid4, UUID
 
+from nug_server.core.service import DeviceContainer
 from nug_server.rfb.frames import ProtocolVersion
 
 
 class Context:
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, devices: DeviceContainer):
         self._id = uuid4()
         self._config = config
         self._transport = None
+        self._devices = devices
         self._version = ProtocolVersion.RFBVersion.RFB_003_003
         self._security_types = {
             1: 'nug_server.rfb.security.none_security_type.NoneSecurityType',
@@ -48,6 +50,10 @@ class Context:
             self._version, value, self._version, value
         )
         self._version = ProtocolVersion.RFBVersion(value)
+
+    @property
+    def devices(self) -> DeviceContainer:
+        return self._devices
 
     @property
     def security_types(self) -> Dict[int, Union[str, None]]:

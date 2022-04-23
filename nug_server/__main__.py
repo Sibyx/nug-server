@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import logging
+import threading
 from ipaddress import ip_address
 from logging.handlers import SysLogHandler
 from pathlib import Path
@@ -9,7 +10,9 @@ import tomli as tomli
 from zeroconf import ServiceInfo, Zeroconf, IPVersion
 
 from nug_server import version
+from nug_server.core.device import Device
 from nug_server.core.server import Server
+from nug_server.core.service import DeviceContainer
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -56,15 +59,21 @@ if __name__ == '__main__':
         zeroconf = None
         info = None
 
-    services = []
+    threads = []
+    devices = DeviceContainer()
 
-    # if args.video:
-    #     video_service = VideoService(args.video)
-    #     video_service.start()
+    for item in config.get('devices', []):
+        device = threading.Thread(
+            target=Device.factory,
+            args=(item, devices),
+            name=f"device:{item['ip']}:{item['port']}"
+        )
+        device.start()
+        threads.append(device)
 
     try:
         asyncio.run(
-            Server.factory(config)
+            Server.factory(config, devices),
         )
     except KeyboardInterrupt:
         if zeroconf:
@@ -72,4 +81,5 @@ if __name__ == '__main__':
             zeroconf.unregister_service(info)
             zeroconf.close()
             exit(0)
+        devices.shutdown()
         logging.info("Shutting down Nug RFB server %s", version.__version__)

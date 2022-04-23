@@ -1,7 +1,7 @@
 [general]
 port = 5901
 bind = [
-    "0.0.0.0",
+    "10.254.251.209",
     "::"
 ]
 database = "/home/alarm/nug.db"
@@ -13,12 +13,12 @@ zeroconf = true
 ip = "127.0.0.1"
 port = 1514
 
-[[dongles]]
-ip = "10.0.0.1"
-port = 5001
+[[devices]]
+ip = "192.168.40.147"
+port = 5801
 services = [ "mouse", "keyboard" ]
 
-[[dongles]]
-ip = "10.0.0.2"
-port = 5002
-services = [ "video" ]
+#[[devices]]
+#ip = "10.0.0.2"
+#port = 5002
+#services = [ "video" ]

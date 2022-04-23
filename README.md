@@ -17,7 +17,7 @@ python -m venv venv
 source venv/bin/activate
 pip install nug_server  # Not yet on PyPi = won't work
 
-python -m nug_server--verbose --config config.toml
+python -m nug_server --verbose --config config.toml
 ```
 
 ## Configuration

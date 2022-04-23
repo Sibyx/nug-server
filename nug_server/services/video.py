@@ -1,5 +1,5 @@
 from nug_server.core.network import NetworkAddress
-from nug_server.services.base import Service
+from nug_server.core.service import Service
 
 '''
 https://lindevs.com/capture-rtsp-stream-from-ip-camera-using-opencv/
