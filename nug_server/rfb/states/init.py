@@ -1,3 +1,5 @@
+from io import BytesIO
+
 from nug_server.rfb.frames import ClientInit, ServerInit, PixelFormat
 from nug_server.rfb.states.active import ActiveState
 from nug_server.core.states import BaseState
@@ -5,8 +7,9 @@ from nug_server.core.states import BaseState
 
 class InitState(BaseState):
     def handle(self, data: bytes):
+        buffer = BytesIO(data)
         client_init = ClientInit()
-        client_init.read(data)
+        client_init.read(buffer)
 
         server_name = self.context.config['general'].get('name', 'Super Nug VNC Server')
 

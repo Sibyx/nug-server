@@ -1,4 +1,5 @@
 import logging
+from io import BytesIO
 
 from nug_server.core.context import Context
 from nug_server.core.utils import resolve_from_path
@@ -14,9 +15,10 @@ class SecurityTypeState(BaseState):
         self._security = None
 
     def handle(self, data: bytes):
+        buffer = BytesIO(data)
         if not self._security:
             security_type = frames.SecurityType()
-            security_type.read(data)
+            security_type.read(buffer)
 
             try:
                 driver = resolve_from_path(self.context.security_types[security_type.method.value])

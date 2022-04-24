@@ -5,7 +5,7 @@ from typing import List
 from nug_server.core.device import Device
 
 
-class ServiceTypes(Enum):
+class ServiceType(Enum):
     KEYBOARD = 'keyboard'
     VIDEO = 'video'
     MOUSE = 'mouse'
@@ -14,14 +14,14 @@ class ServiceTypes(Enum):
 class DeviceContainer:
     def __init__(self):
         self._by_service = {
-            'keyboard': {},
-            'video': {},
-            'mouse': {}
+            ServiceType.KEYBOARD: {},
+            ServiceType.VIDEO: {},
+            ServiceType.MOUSE: {}
         }
         self._by_hostname = {}
 
     def set(self, service: str, host: str, device: Device):
-        self._by_service[service][host] = device
+        self._by_service[ServiceType(service)][host] = device
         self._by_hostname[host] = device
 
     def remove(self, host: str):
@@ -37,6 +37,9 @@ class DeviceContainer:
 
     def all(self) -> List[Device]:
         return list(self._by_hostname.values())
+
+    def service(self, service: ServiceType) -> List[Device]:
+        return list(self._by_service[service].values())
 
     def __repr__(self):
         return self._by_service.__repr__()

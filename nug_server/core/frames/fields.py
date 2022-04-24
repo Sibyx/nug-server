@@ -1,13 +1,18 @@
 from abc import abstractmethod
 
 from enum import Enum
-from struct import pack, unpack
-from typing import Type
+from io import BytesIO
+from struct import pack, unpack, calcsize
+from typing import Type, Optional
 
 
 class Field:
     def __init__(self, value=None):
         self._value = value
+
+    def __call__(self, value) -> 'Field':
+        self._value = value
+        return self
 
     @property
     def value(self):
@@ -16,6 +21,10 @@ class Field:
     @value.setter
     def value(self, value):
         self._value = value
+
+    @abstractmethod
+    def read(self, buffer: BytesIO):
+        pass
 
     @abstractmethod
     def to_bytes(self) -> bytes:
@@ -30,6 +39,9 @@ class StringField(Field):
     def from_bytes(self, data: bytes):
         self.value = data.decode()
 
+    def read(self, buffer: BytesIO):
+        self.from_bytes(buffer.read())
+
     def to_bytes(self) -> bytes:
         return self.value.encode()
 
@@ -42,6 +54,9 @@ class EnumField(StringField):
     def to_bytes(self) -> bytes:
         return self.value.value.encode()
 
+    def read(self, buffer: BytesIO):
+        self.from_bytes(buffer.read())
+
     def from_bytes(self, data: bytes):
         self.value = self._enum(data.decode())
 
@@ -51,6 +66,10 @@ class StructField(Field):
         self._fmt = f"!{fmt}"
         self._scalar = scalar
         super().__init__(value)
+
+    def read(self, buffer: BytesIO):
+        size = calcsize(self._fmt)
+        self.from_bytes(buffer.read(size))
 
     def to_bytes(self) -> bytes:
         return pack(self._fmt, self.value)
@@ -71,15 +90,32 @@ class PaddingField(StructField):
 
 
 class ArrayField(Field):
-    def __init__(self, field: Field, value=None):
+    def __init__(self, field: Field, value=None, header: Optional[Field] = None, size: int = None):
         super().__init__(value)
         self._field = field
+        self.length_header = header
+        self.size = size
+
+    def read(self, buffer: BytesIO):
+        if not (self.length_header or self.size):
+            raise ValueError("Length header or size have to be provided!")
+
+        if self.length_header:
+            self.length_header.read(buffer)
+            self.size = self.length_header.value
+
+        self.value = []
+        for i in self.size:
+            self.value.append(self._field.read(i).value)
 
     def to_bytes(self) -> bytes:
         result = bytes()
+
+        if self.length_header:
+            result += self.length_header(len(self.value)).to_bytes()
+
         for i in self.value:
-            self._field.value = i
-            result += self._field.to_bytes()
+            result += self._field(i).to_bytes()
         return result
 
     def from_bytes(self, data: bytes):
@@ -92,6 +128,9 @@ class FrameField(Field):
 
     def to_bytes(self) -> bytes:
         return self.value.get_value()
+
+    def read(self, buffer: BytesIO):
+        self.value.read(buffer)
 
     def from_bytes(self, data: bytes):
         pass

@@ -63,9 +63,9 @@ class BaseFrame:
         for name in self.fields:
             yield self[name]
 
-    def read(self, data: bytes):
+    def read(self, buffer: io.BytesIO):
         for key, field in self.fields.items():
-            self.fields[key].from_bytes(data)
+            self.fields[key].read(buffer)
 
     def get_value(self):
         # TODO: use streams some day

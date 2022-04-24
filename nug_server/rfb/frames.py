@@ -50,3 +50,43 @@ class ServerInit(Frame):
     pixel_format = fields.FrameField(PixelFormat())
     name_length = fields.U32()
     name = fields.StringField()
+
+
+class SetPixelFormat(Frame):
+    type = fields.U8()
+    padding = fields.PaddingField(size=3)
+    pixel_format = fields.FrameField(PixelFormat())
+
+
+class SetEncodings(Frame):
+    type = fields.U8()
+    padding = fields.PaddingField(size=3)
+    encodings = fields.ArrayField(fields.U32(), header=fields.U16())
+
+
+class FramebufferUpdateRequest(Frame):
+    type = fields.U8()
+    incremental = fields.U8()
+    x = fields.U16()
+    y = fields.U16()
+    width = fields.U8()
+    height = fields.U8()
+
+
+class KeyEvent(Frame):
+    type = fields.U8()
+    down = fields.U8()
+    padding = fields.PaddingField(size=2)
+    key = fields.U32()
+
+
+class PointerEvent(Frame):
+    type = fields.U8()
+    buttons = fields.U8()
+    x = fields.U16()
+    y = fields.U16()
+
+
+class ClientCutText(Frame):
+    type = fields.U8()
+    padding = fields.PaddingField(size=3)
