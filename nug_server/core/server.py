@@ -1,17 +1,19 @@
 import asyncio
 import logging
 from asyncio import Protocol, Transport
+from typing import Optional
 
 from nug_server.core.context import Context
 from nug_server.core.service import DeviceContainer
+from nug_server.core.video_processor import VideoProcessor
 from nug_server.rfb.frames import ProtocolVersion
 from nug_server.core.states import BaseState
 from nug_server.rfb.states.version import VersionState
 
 
 class Server(Protocol):
-    def __init__(self, config: dict, services: DeviceContainer):
-        self._context = Context(config, services)
+    def __init__(self, config: dict, services: DeviceContainer, video_processor: Optional[VideoProcessor] = None):
+        self._context = Context(config, services, video_processor)
         self._state = VersionState(self._context)
 
     @property
@@ -44,10 +46,10 @@ class Server(Protocol):
         logging.debug("Connection lost (context=%s)", self._context)
 
     @classmethod
-    async def factory(cls, config: dict, services: DeviceContainer):
+    async def factory(cls, config: dict, services: DeviceContainer, video_processor: Optional[VideoProcessor] = None):
         loop = asyncio.get_running_loop()
         server = await loop.create_server(
-            lambda: Server(config, services),
+            lambda: Server(config, services, video_processor),
             host=config['general']['bind'],
             port=config['general']['port']
         )

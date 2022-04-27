@@ -13,6 +13,7 @@ from nug_server import version
 from nug_server.core.device import Device
 from nug_server.core.server import Server
 from nug_server.core.service import DeviceContainer
+from nug_server.core.video_processor import VideoProcessor
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -61,6 +62,7 @@ if __name__ == '__main__':
 
     threads = []
     devices = DeviceContainer()
+    video_processor = None
 
     for item in config.get('devices', []):
         device = threading.Thread(
@@ -71,9 +73,12 @@ if __name__ == '__main__':
         device.start()
         threads.append(device)
 
+    # FIXME: only if there is a video device
+    video_processor = VideoProcessor(config)
+
     try:
         asyncio.run(
-            Server.factory(config, devices),
+            Server.factory(config, devices, video_processor),
         )
     except KeyboardInterrupt:
         if zeroconf:

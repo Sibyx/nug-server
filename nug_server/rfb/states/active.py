@@ -27,6 +27,8 @@ class ActiveState(BaseState):
                 payload = PointerEvent()
                 payload.read(buffer)
                 self.pointer_event(payload)
+            case self.ClientToServerType.FRAMEBUFFER_UPDATE_REQUEST:
+                self.framebuffer_update_request(None)
         return self
 
     def __str__(self) -> str:
@@ -46,7 +48,7 @@ class ActiveState(BaseState):
         pass
 
     def pointer_event(self, payload: PointerEvent):
-        for device in self.context.devices.service(ServiceType.MOUSE):
+        for device in self.context.devices.service(ServiceType.POINTER):
             # Create Nug Frame
             data = payload.get_value()[1:]
             device.transport.write(data)
@@ -57,4 +59,4 @@ class ActiveState(BaseState):
         pass
 
     def framebuffer_update_request(self, payload):
-        pass
+        logging.debug(self.context.video_processor.frame)

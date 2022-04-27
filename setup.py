@@ -20,7 +20,7 @@ setup(
     },
     install_requires=[
         'zeroconf==0.38.*',
-        'numpy',
-        'tomli >= 1.1.0 ; python_version < "3.11"'
+        'tomli >= 1.1.0 ; python_version < "3.11"',
+        'opencv-python-headless'
     ],
 )

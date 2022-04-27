@@ -21,7 +21,6 @@ class Device(asyncio.Protocol):
         for service in self._config['services']:
             self._container.set(service, self._host, self)
 
-        self._transport.write("Hi boy!".encode())
         logging.debug(
             "Making connection with %s:%d", self._host, port
         )

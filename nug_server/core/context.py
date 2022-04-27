@@ -4,11 +4,12 @@ from typing import Optional, Dict, Union
 from uuid import uuid4, UUID
 
 from nug_server.core.service import DeviceContainer
+from nug_server.core.video_processor import VideoProcessor
 from nug_server.rfb.frames import ProtocolVersion
 
 
 class Context:
-    def __init__(self, config: dict, devices: DeviceContainer):
+    def __init__(self, config: dict, devices: DeviceContainer, video_processor: Optional[VideoProcessor]):
         self._id = uuid4()
         self._config = config
         self._transport = None
@@ -19,6 +20,7 @@ class Context:
             # 2: 'nug_server.rfb.security.vnc.VNCSecurityType',
             # 16: 'nug_server.rfb.security.tight.TightSecurityType'
         }
+        self._video_processor = video_processor
 
     def __str__(self):
         return str(self._id)
@@ -58,3 +60,7 @@ class Context:
     @property
     def security_types(self) -> Dict[int, Union[str, None]]:
         return self._security_types
+
+    @property
+    def video_processor(self) -> Optional[VideoProcessor]:
+        return self._video_processor

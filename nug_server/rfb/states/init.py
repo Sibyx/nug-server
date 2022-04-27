@@ -1,5 +1,8 @@
 from io import BytesIO
+from time import sleep
 
+from nug_server.core.frames import internal
+from nug_server.core.service import ServiceType
 from nug_server.rfb.frames import ClientInit, ServerInit, PixelFormat
 from nug_server.rfb.states.active import ActiveState
 from nug_server.core.states import BaseState
@@ -33,6 +36,17 @@ class InitState(BaseState):
         )
 
         self.context.transport.write(server_init.get_value())
+
+        for device in self.context.devices.service(ServiceType.VIDEO):
+            start_stream = internal.StartStream(
+                type=internal.MessageType.START_STREAM.value,
+                width=1280,
+                height=1024,
+                name=bytearray(self.context.config['general']['name'].encode())
+            )
+            device.transport.write(start_stream.get_value())
+            sleep(1)
+            self.context.video_processor.start()
 
         return ActiveState(self.context)
 

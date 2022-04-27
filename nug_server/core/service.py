@@ -1,4 +1,3 @@
-import abc
 from enum import Enum
 from typing import List
 
@@ -8,7 +7,7 @@ from nug_server.core.device import Device
 class ServiceType(Enum):
     KEYBOARD = 'keyboard'
     VIDEO = 'video'
-    MOUSE = 'mouse'
+    POINTER = 'pointer'
 
 
 class DeviceContainer:
@@ -16,7 +15,7 @@ class DeviceContainer:
         self._by_service = {
             ServiceType.KEYBOARD: {},
             ServiceType.VIDEO: {},
-            ServiceType.MOUSE: {}
+            ServiceType.POINTER: {}
         }
         self._by_hostname = {}
 
@@ -41,15 +40,8 @@ class DeviceContainer:
     def service(self, service: ServiceType) -> List[Device]:
         return list(self._by_service[service].values())
 
+    def has_service(self, service: ServiceType) -> bool:
+        return len(self._by_service[service]) > 0
+
     def __repr__(self):
         return self._by_service.__repr__()
-
-
-class Service(abc.ABC):
-    @abc.abstractmethod
-    def start(self):
-        pass
-
-    @abc.abstractmethod
-    def stop(self):
-        pass
