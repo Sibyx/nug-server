@@ -4,9 +4,7 @@ from io import BytesIO
 from nug_server.core.context import Context
 from nug_server.core.utils import resolve_from_path
 from nug_server.rfb import frames
-from nug_server.rfb.security.base import BaseSecurityType
 from nug_server.core.states import BaseState
-from nug_server.rfb.states.init import InitState
 
 
 class SecurityTypeState(BaseState):
@@ -27,13 +25,7 @@ class SecurityTypeState(BaseState):
             except KeyError as e:
                 logging.critical("Unknown security type %d", security_type.method.value)
 
-        match self._security.handle(data):
-            case BaseSecurityType.Result.OK:
-                return InitState(self.context)
-            case BaseSecurityType.Result.RUNNING:
-                return self
-            case _:
-                return self
+        return self._security.handle(data)
 
     def __str__(self):
         return "SECURITY_TYPE"

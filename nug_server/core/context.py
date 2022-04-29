@@ -16,9 +16,9 @@ class Context:
         self._devices = devices
         self._version = ProtocolVersion.RFBVersion.RFB_003_003
         self._security_types = {
-            1: 'nug_server.rfb.security.none_security_type.NoneSecurityType',
+            # 1: 'nug_server.rfb.security.none_security_type.NoneSecurityType',
             # 2: 'nug_server.rfb.security.vnc.VNCSecurityType',
-            # 16: 'nug_server.rfb.security.tight.TightSecurityType'
+            16: 'nug_server.rfb.security.tight.TunnelingState'
         }
         self._video_processor = video_processor
 

@@ -1,6 +1,6 @@
-from nug_server.rfb.security.base import BaseSecurityType
+from nug_server.core.states import BaseState
 
 
-class VNCSecurityType(BaseSecurityType):
+class VNCSecurityType(BaseState):
     def handle(self, data: bytes):
         pass
