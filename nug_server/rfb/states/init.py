@@ -45,8 +45,10 @@ class InitState(BaseState):
                 name=bytearray(self.context.config['general']['name'].encode())
             )
             device.transport.write(start_stream.get_value())
-            sleep(1)
-            self.context.video_processor.start()
+            # FIXME: picovina
+            sleep(3)
+            if not self.context.video_processor.is_alive():
+                self.context.video_processor.start()
 
         return ActiveState(self.context)
 

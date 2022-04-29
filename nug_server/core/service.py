@@ -24,8 +24,9 @@ class DeviceContainer:
         self._by_hostname[host] = device
 
     def remove(self, host: str):
-        for service in self._by_service.keys():
-            del self._by_service[service][host]
+        for service in ServiceType:
+            if 'host' in self._by_service[service]:
+                del self._by_service[service][host]
 
         del self._by_hostname[host]
 
