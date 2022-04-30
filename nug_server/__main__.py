@@ -87,4 +87,5 @@ if __name__ == '__main__':
             zeroconf.close()
             exit(0)
         devices.shutdown()
+        video_processor.stop()
         logging.info("Shutting down Nug RFB server %s", version.__version__)

@@ -77,6 +77,12 @@ class BaseFrame:
 
         return buffer.getvalue()
 
+    def to_dict(self):
+        result = {}
+        for key, field in self.fields.items():
+            result[key] = field.value
+        return result
+
 
 class Frame(BaseFrame, metaclass=DeclarativeFieldsMetaclass):
     pass

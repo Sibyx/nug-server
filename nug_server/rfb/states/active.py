@@ -4,7 +4,7 @@ from io import BytesIO
 
 from nug_server.core.service import ServiceType
 from nug_server.core.states import BaseState
-from nug_server.rfb.frames import SetPixelFormat, PointerEvent
+from nug_server.rfb.frames import SetPixelFormat, PointerEvent, FramebufferUpdateRequest
 
 
 class ActiveState(BaseState):
@@ -28,7 +28,9 @@ class ActiveState(BaseState):
                 payload.read(buffer)
                 self.pointer_event(payload)
             case self.ClientToServerType.FRAMEBUFFER_UPDATE_REQUEST:
-                self.framebuffer_update_request(None)
+                payload = FramebufferUpdateRequest()
+                payload.read(buffer)
+                self.framebuffer_update_request(payload)
         return self
 
     def __str__(self) -> str:
@@ -39,7 +41,8 @@ class ActiveState(BaseState):
         pass
 
     def set_pixel_format(self, payload: SetPixelFormat):
-        pass
+        self.context.pixel_format = payload.pixel_format.value.to_dict()
+        logging.debug("Pixel format: %s", self.context.pixel_format)
 
     def set_encodings(self, payload):
         pass
@@ -58,5 +61,6 @@ class ActiveState(BaseState):
     def client_cuts_text(self, payload):
         pass
 
-    def framebuffer_update_request(self, payload):
+    def framebuffer_update_request(self, payload: FramebufferUpdateRequest):
+        crop = self.context.video_processor.frame[payload.y.value:payload.y.value + payload.height.value, payload.x.value:payload.x.value + payload.width.value]
         logging.debug(self.context.video_processor.frame)

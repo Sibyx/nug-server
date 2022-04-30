@@ -1,5 +1,5 @@
 import logging
-from asyncio import Transport
+from asyncio import Transport, StreamReader, StreamWriter
 from typing import Optional, Dict, Union
 from uuid import uuid4, UUID
 
@@ -10,15 +10,18 @@ from nug_server.rfb.frames import ProtocolVersion
 
 class Context:
     def __init__(self, config: dict, devices: DeviceContainer, video_processor: Optional[VideoProcessor]):
+        self._pixel_format = None
         self._id = uuid4()
         self._config = config
         self._transport = None
+        self._reader = None
+        self._writer = None
         self._devices = devices
         self._version = ProtocolVersion.RFBVersion.RFB_003_003
         self._security_types = {
-            # 1: 'nug_server.rfb.security.none_security_type.NoneSecurityType',
+            1: 'nug_server.rfb.security.none_security_type.NoneSecurityType',
             # 2: 'nug_server.rfb.security.vnc.VNCSecurityType',
-            16: 'nug_server.rfb.security.tight.TunnelingState'
+            # 16: 'nug_server.rfb.security.tight.TunnelingState'
         }
         self._video_processor = video_processor
 
@@ -64,3 +67,11 @@ class Context:
     @property
     def video_processor(self) -> Optional[VideoProcessor]:
         return self._video_processor
+
+    @property
+    def pixel_format(self) -> dict:
+        return self._pixel_format
+
+    @pixel_format.setter
+    def pixel_format(self, value: dict):
+        self._pixel_format = value
