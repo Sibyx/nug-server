@@ -8,5 +8,5 @@ class BaseState(ABC):
         self.context = context
 
     @abstractmethod
-    def handle(self, data: bytes):
+    async def handle(self):
         pass

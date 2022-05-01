@@ -1,19 +1,19 @@
 import logging
-from asyncio import Transport, StreamReader, StreamWriter
-from typing import Optional, Dict, Union
+from asyncio import StreamReader, StreamWriter
+from typing import Optional, Dict, Union, List
 from uuid import uuid4, UUID
 
 from nug_server.core.service import DeviceContainer
 from nug_server.core.video_processor import VideoProcessor
-from nug_server.rfb.frames import ProtocolVersion
+from nug_server.rfb.frames.server import ProtocolVersion
 
 
 class Context:
     def __init__(self, config: dict, devices: DeviceContainer, video_processor: Optional[VideoProcessor]):
         self._pixel_format = None
+        self._encodings = None
         self._id = uuid4()
         self._config = config
-        self._transport = None
         self._reader = None
         self._writer = None
         self._devices = devices
@@ -33,12 +33,20 @@ class Context:
         return self._id
 
     @property
-    def transport(self) -> Optional[Transport]:
-        return self._transport
+    def reader(self) -> StreamReader:
+        return self._reader
 
-    @transport.setter
-    def transport(self, value: Transport):
-        self._transport = value
+    @reader.setter
+    def reader(self, value: StreamReader):
+        self._reader = value
+
+    @property
+    def writer(self) -> StreamWriter:
+        return self._writer
+
+    @writer.setter
+    def writer(self, value: StreamWriter):
+        self._writer = value
 
     @property
     def config(self) -> dict:
@@ -75,3 +83,11 @@ class Context:
     @pixel_format.setter
     def pixel_format(self, value: dict):
         self._pixel_format = value
+
+    @property
+    def encodings(self) -> Optional[List[int]]:
+        return self._encodings
+
+    @encodings.setter
+    def encodings(self, value: List[int]):
+        self._encodings = value

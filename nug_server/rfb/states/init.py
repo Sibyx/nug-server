@@ -1,18 +1,17 @@
-from io import BytesIO
 from time import sleep
 
 from nug_server.core.frames import internal
 from nug_server.core.service import ServiceType
-from nug_server.rfb.frames import ClientInit, ServerInit, PixelFormat
+from nug_server.rfb.frames.client import ClientInit
+from nug_server.rfb.frames.server import ServerInit, PixelFormat
 from nug_server.rfb.states.active import ActiveState
 from nug_server.core.states import BaseState
 
 
 class InitState(BaseState):
-    def handle(self, data: bytes):
-        buffer = BytesIO(data)
+    async def handle(self):
         client_init = ClientInit()
-        client_init.read(buffer)
+        await client_init.read(self.context.reader)
 
         server_name = self.context.config['general'].get('name', 'Super Nug VNC Server')
 
@@ -31,11 +30,10 @@ class InitState(BaseState):
                 green_shift=8,
                 blue_shift=0
             ),
-            name_length=len(server_name),
             name=server_name
         )
 
-        self.context.transport.write(server_init.get_value())
+        server_init.write(self.context.writer)
 
         for device in self.context.devices.service(ServiceType.VIDEO):
             start_stream = internal.StartStream(
@@ -50,6 +48,7 @@ class InitState(BaseState):
             if not self.context.video_processor.is_alive():
                 self.context.video_processor.start()
 
+        self.context.video_processor.start()
         return ActiveState(self.context)
 
     def __str__(self):

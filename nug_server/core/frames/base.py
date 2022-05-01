@@ -1,5 +1,6 @@
 import copy
 import io
+from asyncio import StreamWriter, StreamReader
 
 from nug_server.core.frames.fields import Field
 
@@ -63,12 +64,18 @@ class BaseFrame:
         for name in self.fields:
             yield self[name]
 
-    def read(self, buffer: io.BytesIO):
+    async def read(self, buffer: StreamReader):
         for key, field in self.fields.items():
-            self.fields[key].read(buffer)
+            await self.fields[key].read(buffer)
+
+    def write(self, writer: StreamWriter):
+        buffer = io.BytesIO()
+        for key, field in self.fields.items():
+            if isinstance(field, Field):
+                field.write(buffer)
+        writer.write(buffer.getvalue())
 
     def get_value(self):
-        # TODO: use streams some day
         buffer = io.BytesIO()
 
         for key, field in self.fields.items():

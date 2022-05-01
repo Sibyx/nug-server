@@ -1,24 +1,21 @@
-from io import BytesIO
-
-from nug_server.rfb.frames import ProtocolVersion, SecurityTypes
 from nug_server.core.states import BaseState
+from nug_server.rfb.frames.server import ProtocolVersion, SecurityTypes
 from nug_server.rfb.states.security_type import SecurityTypeState
 
 
 class VersionState(BaseState):
-    def handle(self, data: bytes):
-        buffer = BytesIO(data)
+    async def handle(self):
         # Receive version string
         protocol_version = ProtocolVersion()
-        protocol_version.read(buffer)
-        self.context.version = protocol_version.version.value
+        await protocol_version.read(self.context.reader)
+        self.context.version = ProtocolVersion.RFBVersion(protocol_version.version.value)
 
         # Send security types
         security_types = SecurityTypes(
             size=len(self.context.security_types),
             types=self.context.security_types.keys()
         )
-        self.context.transport.write(security_types.get_value())
+        security_types.write(self.context.writer)
 
         # Change state
         return SecurityTypeState(self.context)

@@ -3,7 +3,7 @@ from enum import IntEnum
 from nug_server.core.frames import fields
 from nug_server.core.frames.base import Frame
 from nug_server.core.states import BaseState
-from nug_server.rfb import frames
+from nug_server.rfb.frames.server import SecurityResult
 from nug_server.rfb.states.init import InitState
 
 
@@ -27,11 +27,11 @@ class TunnelingState(BaseState):
         )
     }
 
-    def handle(self, data: bytes):
+    def handle(self):
         frame = TightCapabilitiesFrame(
             capabilities=self.capabilities.values()
         )
-        self.context.transport.write(frame.get_value())
+        frame.write(self.context.writer)
 
         return SecurityState(self.context)
 
@@ -57,12 +57,12 @@ class SecurityState(BaseState):
         )
     }
 
-    def handle(self, data: bytes):
+    def handle(self):
         # FIXME: this probably doesn't work properly, check tcpdump output for more info
         frame = TightCapabilitiesFrame(
             capabilities=self.capabilities.values()
         )
-        self.context.transport.write(frame.get_value())
+        frame.write(self.context.writer)
 
         return AuthenticationState(self.context)
 
@@ -71,9 +71,9 @@ class SecurityState(BaseState):
 
 
 class AuthenticationState(BaseState):
-    def handle(self, data: bytes):
-        security_result = frames.SecurityResult(result=0)
-        self.context.transport.write(security_result.get_value())
+    def handle(self):
+        security_result = SecurityResult(result=0)
+        security_result.write(self.context.writer)
         return InitState(self.context)
 
     def __str__(self):

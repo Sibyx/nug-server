@@ -1,20 +1,21 @@
 import asyncio
+import inspect
 import logging
-from asyncio import Protocol, Transport
+from asyncio import Protocol, StreamReader, StreamWriter
 from typing import Optional
 
 from nug_server.core.context import Context
 from nug_server.core.service import DeviceContainer
 from nug_server.core.video_processor import VideoProcessor
-from nug_server.rfb.frames import ProtocolVersion
 from nug_server.core.states import BaseState
+from nug_server.rfb.frames.server import ProtocolVersion
 from nug_server.rfb.states.version import VersionState
 
 
 class Server(Protocol):
     def __init__(self, config: dict, services: DeviceContainer, video_processor: Optional[VideoProcessor] = None):
         self._context = Context(config, services, video_processor)
-        self._state = VersionState(self._context)
+        self._state = None
 
     @property
     def state(self) -> BaseState:
@@ -28,28 +29,34 @@ class Server(Protocol):
         )
         self._state = value
 
-    def connection_made(self, transport: Transport):
-        self._context.transport = transport
+    async def __call__(self, reader: StreamReader, writer: StreamWriter):
+        self._context.reader = reader
+        self._context.writer = writer
+
         logging.debug(
-            "Making connection with %s:%d (context=%s)", *transport.get_extra_info('peername'), self._context
+            "Making connection with %s:%d (context=%s)", *writer.get_extra_info('peername'), self._context
         )
+
         version_frame = ProtocolVersion(
-            version=ProtocolVersion.RFBVersion.RFB_003_008
+            version=ProtocolVersion.RFBVersion.RFB_003_008.value
         )
-        self._context.transport.write(version_frame.get_value())
+        version_frame.write(self._context.writer)
 
-    def data_received(self, data: bytes):
-        logging.debug("Received: %s (context=%s,data=%s)", data.hex(), self._context, data.hex())
-        self.state = self.state.handle(data)
+        self.state = VersionState(self._context)
 
-    def connection_lost(self, exc: BaseException):
-        logging.debug("Connection lost (context=%s)", self._context)
+        while not self._context.reader.at_eof():
+            state = self.state.handle()
+            if inspect.iscoroutine(state):
+                self.state = await state
+            else:
+                self.state = state
+        else:
+            logging.debug("Connection lost (context=%s)", self._context)
 
     @classmethod
     async def factory(cls, config: dict, services: DeviceContainer, video_processor: Optional[VideoProcessor] = None):
-        loop = asyncio.get_running_loop()
-        server = await loop.create_server(
-            lambda: Server(config, services, video_processor),
+        server = await asyncio.start_server(
+            Server(config, services, video_processor),
             host=config['general']['bind'],
             port=config['general']['port']
         )
