@@ -45,3 +45,17 @@ class ServerInit(Frame):
     height = fields.U16()
     pixel_format = fields.FrameField(PixelFormat())
     name = fields.StringField(header=fields.U32())
+
+
+class Rectangle(Frame):
+    x = fields.U16()
+    y = fields.U16()
+    width = fields.U16()
+    height = fields.U16()
+    encoding = fields.S32()
+
+
+class FramebufferUpdate(Frame):
+    type = fields.U8(value=0)
+    padding = fields.PaddingField(size=1)
+    rectangles = fields.ArrayField(fields.FrameField(Rectangle()), header=fields.U16())

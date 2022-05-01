@@ -16,8 +16,8 @@ class InitState(BaseState):
         server_name = self.context.config['general'].get('name', 'Super Nug VNC Server')
 
         server_init = ServerInit(
-            width=1024,
-            height=768,
+            width=1280,
+            height=1024,
             pixel_format=PixelFormat(
                 bits_per_pixel=32,
                 depth=24,
@@ -48,7 +48,6 @@ class InitState(BaseState):
             if not self.context.video_processor.is_alive():
                 self.context.video_processor.start()
 
-        self.context.video_processor.start()
         return ActiveState(self.context)
 
     def __str__(self):

@@ -21,8 +21,8 @@ class FramebufferUpdateRequest(Frame):
     incremental = fields.U8()
     x = fields.U16()
     y = fields.U16()
-    width = fields.U8()
-    height = fields.U8()
+    width = fields.U16()
+    height = fields.U16()
 
 
 class KeyEvent(Frame):
