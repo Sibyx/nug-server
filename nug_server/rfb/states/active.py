@@ -5,7 +5,6 @@ import time
 from enum import IntEnum
 
 import cv2
-import numpy as np
 
 from nug_server.core.service import ServiceType
 from nug_server.core.states import BaseState
@@ -95,7 +94,6 @@ class ActiveState(BaseState):
 
         # https://jdhao.github.io/2019/07/06/python_opencv_pil_image_to_bytes/
         img_encode = cv2.imencode('.jpg', self.context.video_processor.frame)[1]
-        data_encode = np.array(img_encode)
 
         frame = FramebufferUpdate(
             rectangles=[
@@ -113,10 +111,3 @@ class ActiveState(BaseState):
         buffer.write(img_encode.tobytes())
 
         self.context.writer.write(buffer.getvalue())
-
-        crop = self.context.video_processor.frame[
-               payload.y.value:payload.y.value + payload.height.value,
-               payload.x.value:payload.x.value + payload.width.value
-               ]
-
-        logging.debug(crop)
