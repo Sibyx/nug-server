@@ -1,3 +1,4 @@
+import logging
 from time import sleep
 
 from nug_server.core.frames import internal
@@ -40,9 +41,10 @@ class InitState(BaseState):
                 type=internal.MessageType.START_STREAM.value,
                 width=1280,
                 height=1024,
-                name=bytearray(self.context.config['general']['name'].encode())
+                name=self.context.config['general']['name']
             )
             device.transport.write(start_stream.get_value())
+            logging.debug("Start stream: %s", start_stream.get_value().hex())
             # FIXME: picovina
             sleep(3)
             if not self.context.video_processor.is_alive():

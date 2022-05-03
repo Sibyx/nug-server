@@ -45,13 +45,16 @@ class Server(Protocol):
         self.state = VersionState(self._context)
 
         while not self._context.reader.at_eof():
-            state = self.state.handle()
-            if inspect.iscoroutine(state):
-                self.state = await state
-            else:
-                self.state = state
-        else:
-            logging.debug("Connection lost (context=%s)", self._context)
+            try:
+                state = self.state.handle()
+                if inspect.iscoroutine(state):
+                    self.state = await state
+                else:
+                    self.state = state
+            except ConnectionResetError:
+                break
+
+        logging.debug("Connection lost (context=%s)", self._context)
 
     @classmethod
     async def factory(cls, config: dict, services: DeviceContainer, video_processor: Optional[VideoProcessor] = None):

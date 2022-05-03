@@ -54,7 +54,8 @@ if __name__ == '__main__':
                 'services': ('vnc', )
             },
         )
-        zeroconf = Zeroconf(ip_version=IPVersion.All)
+        # FIXME: IPv6
+        zeroconf = Zeroconf(ip_version=IPVersion.V4Only)
         zeroconf.register_service(info)
     else:
         zeroconf = None

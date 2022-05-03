@@ -27,3 +27,4 @@ share/python-wheels/
 *.egg
 venv/
 .coverage
+config.local.toml

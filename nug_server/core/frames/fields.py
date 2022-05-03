@@ -1,3 +1,4 @@
+import io
 from abc import abstractmethod
 from asyncio import StreamReader, StreamWriter
 
@@ -65,7 +66,7 @@ class StringField(StructField):
     def __init__(self, size: int = None, header: Optional[Field] = None,):
         self.size = size
         self.header = header
-        super().__init__(f"{self.size}s")
+        super().__init__(f"{self.size}s" if self.size is not None else "s")
 
     async def read(self, buffer: StreamReader):
         if not (self.header or self.size):
@@ -87,7 +88,15 @@ class StringField(StructField):
         self.value = data.decode()
 
     def to_bytes(self) -> bytes:
-        return pack(self._fmt, self.value.encode())
+        buffer = io.BytesIO()
+        self.size = len(self.value)
+
+        if self.header:
+            self.header.value = len(self.value)
+            self.header.write(buffer)
+        buffer.write(self.value.encode())
+
+        return buffer.getvalue()
 
 
 class PaddingField(StructField):

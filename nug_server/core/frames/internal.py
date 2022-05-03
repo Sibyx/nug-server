@@ -15,8 +15,21 @@ class StartStream(Frame):
     type = fields.U8()
     width = fields.U16()
     height = fields.U16()
-    # name = fields.ArrayField(fields.StructField('c'), header=fields.U8())
+    name = fields.StringField(header=fields.U8())
 
 
 class StopStream(Frame):
     type = fields.U8()
+
+
+class KeyEvent(Frame):
+    type = fields.U8()
+    down = fields.U8()
+    key = fields.U32()
+
+
+class PointerEvent(Frame):
+    type = fields.U8()
+    buttons = fields.U8()
+    x = fields.U16()
+    y = fields.U16()
